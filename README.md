@@ -16,7 +16,7 @@
   | 👤 Integrante | 🔧 Refatoração | 🔗 Link do PR |
   |--------------|---------------|----------------|
   | :octocat: <a href="https://github.com/Js3Silva">Jonathan Sena </a> | Estrutura e código duplicado do frontend | https://github.com/matheus-0063/lab03-sistema-moeda-estudantil/pull/1 |
-  | :octocat: <a href="https://github.com/matheus-0063">Matheus Fernandes </a> | Organização de Pastas e Modularização do Backend | https://github.com/exemplo/projeto/pull/2 |
+  | :octocat: <a href="https://github.com/matheus-0063">Matheus Fernandes </a> | Organização de Pastas e Modularização do Backend | https://github.com/matheus-0063/lab03-sistema-moeda-estudantil/pull/2 |
   | :octocat: <a href="https://github.com/Victorgabrielcruz">Victor Gabriel</a> | Refatoração backend - Camada services | https://github.com/exemplo/projeto/pull/3 |
   | :octocat: <a href="https://github.com/VitorHDMarinho">Vitor Hugo</a> | Refatoração frontend | https://github.com/exemplo/projeto/pull/4 |
 
@@ -352,29 +352,46 @@ Melhora a clareza, responsabilidade única e testabilidade.
 
 #### 🔴 Antes
 ```java
-public String capitalizeName(String name) {
-    return name.substring(0, 1).toUpperCase() + name.substring(1);
-}
-
-public String capitalizeCity(String city) {
-    return city.substring(0, 1).toUpperCase() + city.substring(1);
-}
+// Não havia os endpoints de edicao e exclusao das vantagens.
 
 ```
 
 #### 🟢 Depois
 ```java
-public String capitalize(String text) {
-    return text.substring(0, 1).toUpperCase() + text.substring(1);
-}
+    @PutMapping("/update/{benefitId}")
+    public ResponseEntity<?> updateBenefit(@PathVariable String benefitId,
+            @RequestParam("benefit") String benefitJson) {
 
-public String capitalizeName(String name) {
-    return capitalize(name);
-}
+        try {
+            Benefit benefit = benefitService.updateBenefit(benefitId, benefitJson);
+            return ResponseEntity.ok(benefit);
 
-public String capitalizeCity(String city) {
-    return capitalize(city);
-}
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao atualizar benefício: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/excluir/{benefitId}")
+    public ResponseEntity<?> deleteBenefit(@PathVariable String benefitId) {
+
+        try {
+            benefitService.deleteBenefit(benefitId);
+            return ResponseEntity.noContent().build();
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erro ao excluir benefício: " + e.getMessage());
+        }
+    }
 ```
 
 #### ✔ Tipo de refatoração aplicada
@@ -382,37 +399,6 @@ public String capitalizeCity(String city) {
 
 #### 📝 Justificativa
 Elimina duplicação e facilita manutenção.
-
----
-
-### 3️⃣ Refatoração 3 – 
-
-**Arquivo:** `src/main/java/com/example/controller/ProductController.java`  
-**Pull Request:** https://github.com/exemplo/projeto/pull/3  
-
-#### 🔴 Antes
-```java
-@PostMapping("/x")
-public void x(@RequestBody Product p) {
-    if (p == null) return;
-    service.save(p);
-}
-```
-
-#### 🟢 Depois
-```java
-@PostMapping("/save")
-public void saveProduct(@RequestBody Product product) {
-    if (product == null) return;
-    service.save(product);
-}
-```
-
-#### ✔ Tipo de refatoração aplicada
-- **Rename Method / Rename Parameter**
-
-#### 📝 Justificativa
-Melhora a clareza e expressividade do código.
 
 ---
 
